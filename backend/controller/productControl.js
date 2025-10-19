@@ -1,21 +1,34 @@
-import product from '../models/prodectModel.js'
+import Product from '../models/productModel.js';
 
+// 1️⃣ Creating products
+export const createProducts = async (req, res) => {
+  const product = await Product.create(req.body);
+  res.status(201).json({
+    success: true,
+    product
+  });
+};
 
-
-
-//1️⃣creating products
-  export const createProducts = async(req,res)=>{
-    console.log(req.body);
+//2️⃣ GET ALL PRODUCTS
+export const getAllProducts=  async (req, res) => {
+  const products= await Product.find()
+  res.status(200).json({
+    success:true,
+    products
     
-    // await product.create(req.body)
- }
+  });
+};
 
+//3️⃣ UPDATE PRODUCTS
+export const updateProducts = async (req,res) => {
+ const product = await Product.findById(req.params.id);
+if(!product){
+  return res.status(500).json({
+    success:false,
+    messege:"product not found"
+  })
+}
+ 
 
-
-
-
-export const getAllProducts = (req, res) => {
-    res.status(200).json({
-        messege: "All Products"
-    })
+  
 }
