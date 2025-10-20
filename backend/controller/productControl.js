@@ -21,14 +21,20 @@ export const getAllProducts=  async (req, res) => {
 
 //3️⃣ UPDATE PRODUCTS
 export const updateProducts = async (req,res) => {
- const product = await Product.findById(req.params.id);
+ let  product = await Product.findById(req.params.id);
 if(!product){
   return res.status(500).json({
     success:false,
     messege:"product not found"
   })
 }
- 
-
+ product=await Product.findByIdAndUpdate(req.params.id,req.body,{
+  new:true,
+  runValidators:true
+ })
+  res.status(200).json({
+    success:true,
+    product
+  })
   
 }
