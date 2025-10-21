@@ -1,27 +1,39 @@
 import Product from '../models/productModel.js';
 import HandleError from "../utils/handleError.js";
+import handleAsyncError from '../middleware/handleAsyncError.js';
+import APIFunctionality from '../utils/apiFunctionality.js';
+import { Query } from 'mongoose';
+
+// http://localhost:8000/api/v1/product/68f4ff1a50af7d4eb67a19d6?keyword=shirt
+
 
 // 1️⃣ Creating products
-export const createProducts = async (req, res) => {
+export const createProducts =handleAsyncError (async (req, res,next) => {
   const product = await Product.create(req.body);
   res.status(201).json({
     success: true,
     product
   });
-};
+});
 
 //2️⃣ GET ALL PRODUCTS
-export const getAllProducts=  async (req, res) => {
+export const getAllProducts= handleAsyncError (async (req, res,next) => {
+  console.log(req.query);
+  
+  // new APIFunctionality(Product.find(),req,query);
   const products= await Product.find()
   res.status(200).json({
     success:true,
     products
     
   });
-};
+});
+
+
+
 
 //3️⃣ UPDATE PRODUCTS
-export const updateProducts = async (req,res,next) => {
+export const updateProducts = handleAsyncError(async (req,res,next) => {
 
  const product=await Product.findByIdAndUpdate(req.params.id,req.body,{
   new:true,
@@ -34,11 +46,11 @@ export const updateProducts = async (req,res,next) => {
     success:true,
     product
   })
-}
+})
 
 // 4️⃣4️ DELETE PRODUCT
 
-export const deleteProduct = async(req,res,next)=>{
+export const deleteProduct = handleAsyncError(async(req,res,next)=>{
   
 const product=await Product.findByIdAndDelete(req.params.id);
  if (!product) {
@@ -49,12 +61,12 @@ const product=await Product.findByIdAndDelete(req.params.id);
     success:true,
     messege:"Product Deleted Successfully"
   })
-}
+})
 
 
 // 5️⃣ ACCESSING SINGLE PRODUCT
 
-export const getSingleProduct = async (req, res,next) => {
+export const getSingleProduct = handleAsyncError(async (req, res,next) => {
   const product = await Product.findById(req.params.id);
 
   if (!product) {
@@ -65,4 +77,4 @@ export const getSingleProduct = async (req, res,next) => {
     success: true,
     product,
   });
-};
+});
