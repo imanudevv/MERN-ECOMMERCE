@@ -6,7 +6,6 @@ import { Query } from 'mongoose';
 
 // http://localhost:8000/api/v1/product/68f4ff1a50af7d4eb67a19d6?keyword=shirt
 
-
 // 1️⃣ Creating products
 export const createProducts =handleAsyncError (async (req, res,next) => {
   const product = await Product.create(req.body);
@@ -18,9 +17,9 @@ export const createProducts =handleAsyncError (async (req, res,next) => {
 
 //2️⃣ GET ALL PRODUCTS
 export const getAllProducts= handleAsyncError (async (req, res,next) => {
-  console.log(req.query);
+
   
-  // new APIFunctionality(Product.find(),req,query);
+  const apiFunctionality = new APIFunctionality(Product.find(),req.query).search();
   const products= await Product.find()
   res.status(200).json({
     success:true,
