@@ -15,18 +15,17 @@ export const createProducts =handleAsyncError (async (req, res,next) => {
   });
 });
 
-//2️⃣ GET ALL PRODUCTS
-export const getAllProducts= handleAsyncError (async (req, res,next) => {
+// 2️⃣ GET ALL PRODUCTS
+export const getAllProducts = handleAsyncError(async (req, res, next) => {
+  const apiFunctionality = new APIFunctionality(Product.find(), req.query).search();
+  const products = await apiFunctionality.query
 
-  
-  const apiFunctionality = new APIFunctionality(Product.find(),req.query).search();
-  const products= await Product.find()
   res.status(200).json({
-    success:true,
-    products
-    
+    success: true,
+    products,
   });
 });
+
 
 
 
