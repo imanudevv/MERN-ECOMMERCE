@@ -17,15 +17,23 @@ export const createProducts =handleAsyncError (async (req, res,next) => {
 
 // 2️⃣ GET ALL PRODUCTS
 export const getAllProducts = handleAsyncError(async (req, res, next) => {
-  const apiFunctionality = new APIFunctionality(Product.find(), req.query).search().filter();
-  const products = await apiFunctionality.query
+  const resultPerPage = 3;
+  const apiFeatures = new APIFunctionality(Product.find(), req.query)
+    .search()
+    .filter();
 
+  // getting filtered query before pagination
+  const filteredQuery = apiFeatures.query.clone();
+  const productCount = await filteredQuery.countDocuments();
+  console.log(productCount);
+
+  const products = await apiFeatures.query;
   res.status(200).json({
     success: true,
     products,
+    productCount
   });
 });
-
 
 
 

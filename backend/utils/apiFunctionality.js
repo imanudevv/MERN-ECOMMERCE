@@ -1,15 +1,15 @@
 // APIFunctionality.js
 class APIFunctionality {
-    constructor(query, querystr) {
+    constructor(query, queryStr) {
         this.query = query;
-        this.querystr = querystr;
+        this.queryStr = queryStr;
     }
 
     search() {
-        const keyword = this.querystr.keyword
+        const keyword = this.queryStr.keyword
             ? {
                   name: {
-                      $regex: this.querystr.keyword,
+                      $regex: this.queryStr.keyword,
                       $options: "i",
                   },
               }
@@ -20,7 +20,7 @@ class APIFunctionality {
     }
 
     filter() {
-        const queryCopy = { ...this.querystr };
+        const queryCopy = { ...this.queryStr };
         const removeFields = ["keyword", "page", "limit"];
         removeFields.forEach((key) => delete queryCopy[key]);
         this.query = this.query.find(queryCopy);
@@ -28,8 +28,9 @@ class APIFunctionality {
     }
 
     pagination(resultPerPage) {
-        const currentPage = Number(this.querystr.page) || 1;
-        console.log(typeof currentPage);
+        const currentPage = Number(this.queryStr.page) || 1;
+        const skip = resultPerPage * (currentPage - 1);
+        this.query = this.query.limit(resultPerPage).skip(skip);
         return this;
     }
 }
