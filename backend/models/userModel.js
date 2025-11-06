@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import validator from 'validator';
 import bycryptjs from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import bcrypt from "bcryptjs";
 
 const userScema = new mongoose.Schema({
     name: {
@@ -56,6 +57,12 @@ userScema.methods.getJWTToken=function(){
             expiresIn:process.env.JWT_EXPIRE
         }
     )
+}
+
+userScema.methods.verifyPassword= async function
+(userEnteredPassword){
+    return await bycryptjs.compare(userEnteredPassword,
+        this.password);
 }
 
 export default mongoose.model("User",userScema)
