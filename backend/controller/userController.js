@@ -1,6 +1,7 @@
 
 import handleAsyncError from '../middleware/handleAsyncError.js'
 import User from  '../models/userModel.js';
+import HandleError from '../utils/handleError.js';
 export const registerUser=handleAsyncError(async(req,res, next)=>{
    const {name,email,password}=req.body;
 
@@ -20,4 +21,13 @@ export const registerUser=handleAsyncError(async(req,res, next)=>{
     user,
     token
    })
+})
+
+//Login
+export const loginUser =handleAsyncError(async(req, res,next)=>{
+    const {email,password}=req.body;
+    if(!email || !password){
+        return next(new HandleError("Email or passoer cannot be empty",400))
+    }
+    const user=await User.findOne({email})
 })
