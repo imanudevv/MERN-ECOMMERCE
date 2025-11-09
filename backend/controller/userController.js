@@ -27,7 +27,6 @@ export const loginUser = handleAsyncError(async (req, res, next) => {
     return next(new HandleError("Email or password cannot be empty", 400));
   }
 
-  // ✅ Fixed line break issue
   const user = await User.findOne({ email }).select("+password");
   if (!user) {
     return next(new HandleError("Invalid Email or password", 401));
@@ -52,4 +51,24 @@ export const logout = handleAsyncError(async (req, res, next) => {
     success: true,
     message: 'Logged out successfully'
   });
+});
+
+// Reset Password
+export const requestPasswordRest = handleAsyncError(async (req, res, next) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(new HandleError("User doesn't exist", 400)); // ❌ fixed wrong error class
+  }
+
+  let resetToken;
+  try {
+    resetToken = user.generatePasswordRestToken();
+    await user.save({ validateBeforeSave: false });
+  } catch (error) {
+      console.log(error);
+      
+
+    return next(new HandleError("Could not save reset token, please try again later", 500)); // ❌ fixed wrong error class
+  }
 });

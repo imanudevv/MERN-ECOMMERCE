@@ -8,6 +8,9 @@ import { Query } from 'mongoose';
 
 // 1️⃣ Creating products
 export const createProducts =handleAsyncError (async (req, res,next) => {
+  req.body.user=req.user.id;
+  console.log(req.user);
+  
   const product = await Product.create(req.body);
   res.status(201).json({
     success: true,
