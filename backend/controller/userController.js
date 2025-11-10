@@ -2,6 +2,7 @@ import handleAsyncError from '../middleware/handleAsyncError.js';
 import User from '../models/userModel.js';
 import HandleError from '../utils/handleError.js';
 import { sendToken } from '../utils/jwtToken.js';
+import { sendEmail } from '../utils/sendEmail.js';
 
 // Register
 export const registerUser = handleAsyncError(async (req, res, next) => {
@@ -58,7 +59,7 @@ export const requestPasswordRest = handleAsyncError(async (req, res, next) => {
   const { email } = req.body;
   const user = await User.findOne({ email });
   if (!user) {
-    return next(new HandleError("User doesn't exist", 400)); // ❌ fixed wrong error class
+    return next(new HandleError("User doesn't exist", 400));
   }
 
   let resetToken;
@@ -66,9 +67,30 @@ export const requestPasswordRest = handleAsyncError(async (req, res, next) => {
     resetToken = user.generatePasswordRestToken();
     await user.save({ validateBeforeSave: false });
   } catch (error) {
-      console.log(error);
-      
 
-    return next(new HandleError("Could not save reset token, please try again later", 500)); // ❌ fixed wrong error class
+    return next(new HandleError("Could not save reset token, please try again later", 500));
   }
+  const resetPasswordURL = `http://localhost/api/v1/reset/${resetToken}`
+  const message = `Use the following link to reset your password: ${resetPasswordURL}.
+  \n\n This link will expire in 30 minutes. \n\n if you didn't request a password reset, please
+  ignore this message. ;`
+  try {
+//Send  email
+       await sendEmail({
+          email:user.email,
+          subject:'Password Reset Request',
+          message:message
+       })
+       res.status(200).json({
+        success:true,
+        message:`Email is send to ${user.email}
+        successfully`
+       })
+  } catch (error) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save({ validateBeforeSave: false })
+    return next(new HandleError("Email couldn't be sent , please try again later", 500));
+  }
+
 });
