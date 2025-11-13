@@ -1,5 +1,7 @@
 import express from 'express'
-import {loginUser, logout, registerUser, requestPasswordRest, resetPassword} from '../controller/userController.js'
+import {getUserDetails, loginUser, logout, registerUser, requestPasswordRest, resetPassword, updatePassword, updateProfile} from '../controller/userController.js'
+import {  verifyUserAuth } from '../middleware/userAuth.js';
+
 const router=express.Router();
 
 router.route("/register").post(registerUser)
@@ -8,4 +10,8 @@ router.route("/logout").post(logout)
 router.route("/password/forgot").post
 (requestPasswordRest)
 router.route("/reset/:token").post(resetPassword)
+router.route("/profile").post(verifyUserAuth,getUserDetails);
+router.route("/password/update").post(verifyUserAuth,updatePassword);
+router.route("/profile/update").post(verifyUserAuth,updateProfile);
+
 export default router;
