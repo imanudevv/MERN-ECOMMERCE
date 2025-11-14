@@ -9,7 +9,7 @@ import { Query } from 'mongoose';
 // 1️⃣ Creating products
 export const createProducts =handleAsyncError (async (req, res,next) => {
   req.body.user=req.user.id;
-  console.log(req.user);
+
   
   const product = await Product.create(req.body);
   res.status(201).json({
@@ -106,3 +106,13 @@ export const getSingleProduct = handleAsyncError(async (req, res,next) => {
     product,
   });
 });
+
+//Admin-Getting all products
+export const getAdminProducts =handleAsyncError(async(req, res , next)=>{
+  const products = await Product.find();
+  req.status(200).json({
+    success:true,
+    products
+  })
+
+})
