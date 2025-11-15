@@ -6,19 +6,13 @@ import APIFunctionality from '../utils/apiFunctionality.js';
 // 1️⃣ Creating products
 export const createProducts = handleAsyncError(async (req, res, next) => {
   req.body.user = req.user.id;
-
   const product = await Product.create(req.body);
-
-  res.status(201).json({
-    success: true,
-    product
-  });
+  res.status(201).json({ success: true, product });
 });
 
 // 2️⃣ GET ALL PRODUCTS
 export const getAllProducts = handleAsyncError(async (req, res, next) => {
   const resultPerPage = 3;
-
   const apiFeatures = new APIFunctionality(Product.find(), req.query)
     .search()
     .filter();
@@ -27,21 +21,20 @@ export const getAllProducts = handleAsyncError(async (req, res, next) => {
   const filteredQuery = apiFeatures.query.clone();
   const productCount = await filteredQuery.countDocuments();
 
-  // Calculate total pages
   const totalPages = Math.ceil(productCount / resultPerPage);
   const page = Number(req.query.page) || 1;
 
-  // Only throw error if productCount > 0
   if (productCount > 0 && page > totalPages) {
     return next(new HandleError("This page doesn't exist", 404));
   }
 
-  // Apply pagination
   apiFeatures.pagination(resultPerPage);
   const products = await apiFeatures.query;
+
   if (!products || products.length === 0) {
     return next(new HandleError("No Product Found", 404));
   }
+
   res.status(200).json({
     success: true,
     products,
@@ -63,10 +56,7 @@ export const updateProducts = handleAsyncError(async (req, res, next) => {
     return next(new HandleError("Product Not Found", 404));
   }
 
-  res.status(200).json({
-    success: true,
-    product
-  });
+  res.status(200).json({ success: true, product });
 });
 
 // 4️⃣ DELETE PRODUCT
@@ -77,10 +67,7 @@ export const deleteProduct = handleAsyncError(async (req, res, next) => {
     return next(new HandleError("Product Not Found", 404));
   }
 
-  res.status(200).json({
-    success: true,
-    message: "Product Deleted Successfully"
-  });
+  res.status(200).json({ success: true, message: "Product Deleted Successfully" });
 });
 
 // 5️⃣ GET SINGLE PRODUCT
@@ -91,13 +78,10 @@ export const getSingleProduct = handleAsyncError(async (req, res, next) => {
     return next(new HandleError("Product Not Found", 404));
   }
 
-  res.status(200).json({
-    success: true,
-    product,
-  });
+  res.status(200).json({ success: true, product });
 });
 
-//6️⃣CREATING AND UPDATING\
+// 6️⃣ CREATING AND UPDATING REVIEW
 export const createReviewForProduct = handleAsyncError(async (req, res, next) => {
   const { rating, comment, productId } = req.body;
 
@@ -111,7 +95,7 @@ export const createReviewForProduct = handleAsyncError(async (req, res, next) =>
   const product = await Product.findById(productId);
 
   if (!product) {
-    return next(new HandleError("Product not found", 404));
+    return next(new HandleError("Product Not Found", 404));
   }
 
   const reviewExist = product.reviews.find(
@@ -119,38 +103,28 @@ export const createReviewForProduct = handleAsyncError(async (req, res, next) =>
   );
 
   if (reviewExist) {
-    // Update existing review
     product.reviews.forEach(r => {
       if (r.user.toString() === req.user._id.toString()) {
-        r.rating = rating;
+        r.rating = Number(rating);
         r.comment = comment;
       }
     });
   } else {
-    // Add new review
-    product.reviews.push(review);
+    product.reviews.push(review)
+    product.numberOfReview=product.reviews.length
   }
-
-  // Recalculate ratings
-  product.ratings =
-    product.reviews.reduce((acc, r) => acc + r.rating, 0) /
-    product.reviews.length;
-
+  let sum=0
+  product.reviews.forEach(review=>{
+      sum+=review.rating
+  })
+  product.ratings=avg/product.reviews.length
   await product.save({ validateBeforeSave: false });
 
-  res.status(200).json({
-    success: true,
-    product
-  });
+  res.status(200).json({ success: true, product });
 });
 
-
-//7️⃣ Admin - Get all products
+// 7️⃣ Admin - Get all products
 export const getAdminProducts = handleAsyncError(async (req, res, next) => {
   const products = await Product.find();
-
-  res.status(200).json({
-    success: true,
-    products
-  });
+  res.status(200).json({ success: true, products });
 });
