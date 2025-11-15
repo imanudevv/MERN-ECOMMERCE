@@ -2,16 +2,13 @@ import Product from '../models/productModel.js';
 import HandleError from "../utils/handleError.js";
 import handleAsyncError from '../middleware/handleAsyncError.js';
 import APIFunctionality from '../utils/apiFunctionality.js';
-import { Query } from 'mongoose';
-
-// http://localhost:8000/api/v1/product/68f4ff1a50af7d4eb67a19d6?keyword=shirt
 
 // 1️⃣ Creating products
-export const createProducts =handleAsyncError (async (req, res,next) => {
-  req.body.user=req.user.id;
+export const createProducts = handleAsyncError(async (req, res, next) => {
+  req.body.user = req.user.id;
 
-  
   const product = await Product.create(req.body);
+
   res.status(201).json({
     success: true,
     product
@@ -21,84 +18,77 @@ export const createProducts =handleAsyncError (async (req, res,next) => {
 // 2️⃣ GET ALL PRODUCTS
 export const getAllProducts = handleAsyncError(async (req, res, next) => {
   const resultPerPage = 3;
+
   const apiFeatures = new APIFunctionality(Product.find(), req.query)
     .search()
     .filter();
 
-  // getting filtered query before pagination
+  // Getting filtered query before pagination
   const filteredQuery = apiFeatures.query.clone();
   const productCount = await filteredQuery.countDocuments();
 
+  // Calculate total pages
+  const totalPages = Math.ceil(productCount / resultPerPage);
+  const page = Number(req.query.page) || 1;
 
-// Calculate totalPages based on filtered count
-const totalPages = Math.ceil(productCount / resultPerPage);
-const page = Number(req.query.page) || 1;
+  // Only throw error if productCount > 0
+  if (productCount > 0 && page > totalPages) {
+    return next(new HandleError("This page doesn't exist", 404));
+  }
 
-if (page > totalPages && productCount > 0) {
-  return next(new HandleError("This page doesn't exist", 404));
-}
-
-
-//Apply pagination
-apiFeatures.pagination(resultPerPage)
-const products = await apiFeatures.query;
-
-if (!products || products.length===0){
-  return next (new HandleError("No Product Found",404))
-}
-
+  // Apply pagination
+  apiFeatures.pagination(resultPerPage);
+  const products = await apiFeatures.query;
+  if (!products || products.length === 0) {
+    return next(new HandleError("No Product Found", 404));
+  }
   res.status(200).json({
     success: true,
     products,
     productCount,
     resultPerPage,
     totalPages,
-    currentPage:page
+    currentPage: page
   });
 });
 
+// 3️⃣ UPDATE PRODUCTS
+export const updateProducts = handleAsyncError(async (req, res, next) => {
+  const product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true
+  });
 
-
-
-//3️⃣ UPDATE PRODUCTS
-export const updateProducts = handleAsyncError(async (req,res,next) => {
-
- const product=await Product.findByIdAndUpdate(req.params.id,req.body,{
-  new:true,
-  runValidators:true
- })
   if (!product) {
-    return next(new HandleError("Product Not Found",404))
+    return next(new HandleError("Product Not Found", 404));
   }
+
   res.status(200).json({
-    success:true,
+    success: true,
     product
-  })
-})
+  });
+});
 
-// 4️⃣4️ DELETE PRODUCT
+// 4️⃣ DELETE PRODUCT
+export const deleteProduct = handleAsyncError(async (req, res, next) => {
+  const product = await Product.findByIdAndDelete(req.params.id);
 
-export const deleteProduct = handleAsyncError(async(req,res,next)=>{
-  
-const product=await Product.findByIdAndDelete(req.params.id);
- if (!product) {
-    return next(new HandleError("Product Not Found",404))
+  if (!product) {
+    return next(new HandleError("Product Not Found", 404));
   }
 
- res.status(200).json({
-    success:true,
-    messege:"Product Deleted Successfully"
-  })
-})
+  res.status(200).json({
+    success: true,
+    message: "Product Deleted Successfully"
+  });
+});
 
-
-// 5️⃣ ACCESSING SINGLE PRODUCT
-
-export const getSingleProduct = handleAsyncError(async (req, res,next) => {
+// 5️⃣ GET SINGLE PRODUCT
+export const getSingleProduct = handleAsyncError(async (req, res, next) => {
   const product = await Product.findById(req.params.id);
 
   if (!product) {
-    return next(new HandleError("Product Not Found",404))
+    return next(new HandleError("Product Not Found", 404));
   }
 
   res.status(200).json({
@@ -107,12 +97,60 @@ export const getSingleProduct = handleAsyncError(async (req, res,next) => {
   });
 });
 
-//Admin-Getting all products
-export const getAdminProducts =handleAsyncError(async(req, res , next)=>{
-  const products = await Product.find();
-  req.status(200).json({
-    success:true,
-    products
-  })
+//6️⃣CREATING AND UPDATING\
+export const createReviewForProduct = handleAsyncError(async (req, res, next) => {
+  const { rating, comment, productId } = req.body;
 
-})
+  const review = {
+    user: req.user._id,
+    name: req.user.name,
+    rating: Number(rating),
+    comment
+  };
+
+  const product = await Product.findById(productId);
+
+  if (!product) {
+    return next(new HandleError("Product not found", 404));
+  }
+
+  const reviewExist = product.reviews.find(
+    r => r.user.toString() === req.user._id.toString()
+  );
+
+  if (reviewExist) {
+    // Update existing review
+    product.reviews.forEach(r => {
+      if (r.user.toString() === req.user._id.toString()) {
+        r.rating = rating;
+        r.comment = comment;
+      }
+    });
+  } else {
+    // Add new review
+    product.reviews.push(review);
+  }
+
+  // Recalculate ratings
+  product.ratings =
+    product.reviews.reduce((acc, r) => acc + r.rating, 0) /
+    product.reviews.length;
+
+  await product.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    success: true,
+    product
+  });
+});
+
+
+//7️⃣ Admin - Get all products
+export const getAdminProducts = handleAsyncError(async (req, res, next) => {
+  const products = await Product.find();
+
+  res.status(200).json({
+    success: true,
+    products
+  });
+});
