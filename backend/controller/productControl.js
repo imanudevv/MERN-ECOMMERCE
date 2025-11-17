@@ -110,18 +110,30 @@ export const createReviewForProduct = handleAsyncError(async (req, res, next) =>
       }
     });
   } else {
-    product.reviews.push(review)
-    product.numberOfReview=product.reviews.length
+    product.reviews.push(review);
   }
-  let sum=0
-  product.reviews.forEach(review=>{
-      sum+=review.rating
-  })
-  product.ratings=avg/product.reviews.length
+
+  product.numOfReviews = product.reviews.length;
+
+  let sum = 0;
+  product.reviews.forEach(r => {
+    sum += Number(r.rating);
+  });
+
+  product.ratings =
+    product.reviews.length > 0 ? sum / product.reviews.length : 0;
+
   await product.save({ validateBeforeSave: false });
 
-  res.status(200).json({ success: true, product });
+  res.status(200).json({
+    success: true,
+    product,
+    numOfReviews: product.numOfReviews,  // 🔥 now visible
+    ratings: product.ratings             // optional
+  });
 });
+
+
 
 // 7️⃣ Admin - Get all products
 export const getAdminProducts = handleAsyncError(async (req, res, next) => {
