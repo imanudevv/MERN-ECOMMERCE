@@ -17,7 +17,6 @@ export const getAllProducts = handleAsyncError(async (req, res, next) => {
     .search()
     .filter();
 
-  // Getting filtered query before pagination
   const filteredQuery = apiFeatures.query.clone();
   const productCount = await filteredQuery.countDocuments();
 
@@ -105,7 +104,7 @@ export const createReviewForProduct = handleAsyncError(async (req, res, next) =>
   if (reviewExist) {
     product.reviews.forEach(r => {
       if (r.user.toString() === req.user._id.toString()) {
-        r.rating = Number(rating);
+        r.rating = Number(rating);   // ✅ FIXED BUG
         r.comment = comment;
       }
     });
@@ -128,16 +127,64 @@ export const createReviewForProduct = handleAsyncError(async (req, res, next) =>
   res.status(200).json({
     success: true,
     product,
-    numOfReviews: product.numOfReviews,  // 🔥 now visible
-    ratings: product.ratings             // optional
+    numOfReviews: product.numOfReviews,
+    ratings: product.ratings
+  });
+});
+
+//7️⃣ GETTING REVIEWS
+export const getProductReviews = handleAsyncError(async (req, res, next) => {
+  const product = await Product.findById(req.query.id);
+  if (!product) {
+    return next(new HandleError("Product not found", 400));
+  }
+  res.status(200).json({
+    success: true,
+    reviews: product.reviews
+  });
+});
+
+//8️⃣ DELETING REVIEWS
+export const deleteReview = handleAsyncError(async (req, res, next) => {
+  const product = await Product.findById(req.query.productId);
+  if (!product) {
+    return next(new HandleError("Product not found", 400));
+  }
+
+  const reviews = product.reviews.filter(
+    review => review._id.toString() !== req.query.id.toString()
+  );
+
+  let sum = 0;
+  reviews.forEach(review => {
+    sum += review.rating;
+  });
+
+  const ratings = reviews.length > 0 ? sum / reviews.length : 0;
+  const numOfReviews = reviews.length;
+
+  await Product.findByIdAndUpdate(
+    req.query.productId,
+    {
+      reviews,
+      ratings,
+      numOfReviews
+    },
+    {
+      new: true,
+      runValidators: true
+    }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Review Deleted Successfully"
   });
 });
 
 
-
-// 7️⃣ Admin - Get all products
+// 9️⃣ Admin - Get all products
 export const getAdminProducts = handleAsyncError(async (req, res, next) => {
   const products = await Product.find();
   res.status(200).json({ success: true, products });
 });
-//
