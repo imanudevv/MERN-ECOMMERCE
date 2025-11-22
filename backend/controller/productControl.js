@@ -182,7 +182,6 @@ export const deleteReview = handleAsyncError(async (req, res, next) => {
   });
 });
 
-
 // 9️⃣ Admin - Get all products
 export const getAdminProducts = handleAsyncError(async (req, res, next) => {
   const products = await Product.find();

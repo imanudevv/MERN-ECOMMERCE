@@ -5,10 +5,10 @@ import HandleError from '../utils/handleError.js'
 import handleAsyncError from '../middleware/handleAsyncError.js'
 
 //create New Order
-export const createNewOrder= handleAsyncError(async(requestAnimationFrame,resizeBy,next)=>{
-    const {shippingInfo,orderItems,paymentInfo,itemPrice,taxPrice,shippingPrice,totalPrice}=req.body;
+export const createNewOrder = handleAsyncError(async (req, res, next) => {
+    const { shippingInfo, orderItems, paymentInfo, itemPrice, taxPrice, shippingPrice, totalPrice } = req.body;
 
-    const order=await Order.create({
+    const order = await Order.create({
         shippingInfo,
         orderItems,
         paymentInfo,
@@ -16,11 +16,11 @@ export const createNewOrder= handleAsyncError(async(requestAnimationFrame,resize
         taxPrice,
         shippingPrice,
         totalPrice,
-        paidAt:Date.now(),
-        user:req.user._id
+        paidAt: Date.now(),
+        user: req.user._id
     })
     res.status(200).json({
-        success:true,
+        success: true,
         order
     })
 })
