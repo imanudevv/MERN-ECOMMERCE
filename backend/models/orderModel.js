@@ -1,4 +1,5 @@
 import mongoose, { mongo } from "mongoose";
+import { type } from "os";
 
 const orderSchema = new mongoose.Schema({
     shippingInfo: {
@@ -45,7 +46,7 @@ const orderSchema = new mongoose.Schema({
                 type: String,
                 required: true
             },
-            prodect: {
+            product: {
                 type: mongoose.Schema.ObjectId,
                 ref: 'Product',
                 required: true
@@ -53,6 +54,11 @@ const orderSchema = new mongoose.Schema({
         }
 
     ],
+    orderStatus: {
+        type: String,
+        required: true,
+        default:"Processing"
+    },
     user: {
         type: mongoose.Schema.ObjectId,
         ref: "User",
@@ -93,10 +99,10 @@ const orderSchema = new mongoose.Schema({
         required: true,
         default: 0
     },
-    deliveredAt:Date,
-    createdAt:{
-        type:Date,
-        default:Date.now
+    deliveredAt: Date,
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
 })
-export default mongoose.model('Order',orderSchema)
+export default mongoose.model('Order', orderSchema)

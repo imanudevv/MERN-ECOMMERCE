@@ -24,3 +24,92 @@ export const createNewOrder = handleAsyncError(async (req, res, next) => {
         order
     })
 })
+//Getting single Order
+export const getSingleOrder = handleAsyncError(async (req, res, next) => {
+    const order = await Order.findById(req.params.id).populate("user", "name email")
+    if (!order) {
+        return next(new HandleError("No order found", 404));
+
+    }
+    res.status(200).json({
+        success: true,
+        order
+    })
+})
+
+//All my orders
+export const allMyOrders = handleAsyncError(async (req, res, next) => {
+    const orders = await Order.find({ user: req.user._id });
+    if (!orders) {
+        return next(new HandleError("No orders found", 404));
+    }
+    res.status(200).json({
+        success: true,
+        orders
+    })
+
+})
+
+//Getting all orders
+export const getAllOrders = handleAsyncError(async (req, res, next) => {
+    const orders = await Order.find();
+    let totalAmount = 0;
+    orders.forEach(order => {
+        totalAmount += order.totalPrice
+    })
+    res.status(200).json({
+        success: true,
+        orders,
+        totalAmount
+    })
+
+})
+
+// Update Order Status
+export const updateOrderStatus = handleAsyncError(async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    return next(new HandleError("No order found", 404));
+  }
+
+  if (order.orderStatus === "Delivered") {
+    return next(new HandleError("This order is already delivered", 400));
+  }
+
+  // Update stock only when status becomes Delivered
+  if (req.body.status === "Delivered") {
+    await Promise.all(
+      order.orderItems.map(item =>
+        updateQuantity(item.product, item.quantity)
+      )
+    );
+    order.deliveredAt = Date.now();
+  }
+
+  order.orderStatus = req.body.status;
+
+  await order.save({ validateBeforeSave: false });
+
+  res.status(200).json({
+    success: true,
+    order
+  });
+});
+
+async function updateQuantity(id, quantity) {
+  const product = await Product.findById(id);
+  if (!product) return;
+  product.stock -= quantity;
+  await product.save({ validateBeforeSave: false });
+}
+
+//Delete order
+export const deleteOrder = handleAsyncError(async (req, res, next) => {
+   const order=await Order.findById(req.params.id);
+   if(!order){
+     return next(new HandleError("No orders found", 404));
+   }
+   await Order.deleteOne({_id:req.params.id})
+})
+
