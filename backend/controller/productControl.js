@@ -9,40 +9,39 @@ export const createProducts = handleAsyncError(async (req, res, next) => {
   const product = await Product.create(req.body);
   res.status(201).json({ success: true, product });
 });
+// 2️⃣ Get All Products
+export const getAllProducts = handleAsyncError (async (req, res,next) => {
+const resultPerPage=4;
+    const apiFeatures = new APIFunctionality(Product.find(), req.query).search().filter();
 
-// 2️⃣ GET ALL PRODUCTS
-export const getAllProducts = handleAsyncError(async (req, res, next) => {
-  const resultPerPage = 3;
-  const apiFeatures = new APIFunctionality(Product.find(), req.query)
-    .search()
-    .filter();
+    // Getting filtered query before pagination
+    const filteredQuery = apiFeatures.query.clone();
+    const productCount = await filteredQuery.countDocuments();
+    
+    // Calculate totalpages based on filtered count
+    const totalpages = Math.ceil(productCount/resultPerPage);
+    const page = Number(req.query.page) || 1;
 
-  const filteredQuery = apiFeatures.query.clone();
-  const productCount = await filteredQuery.countDocuments();
+    if (page > totalpages && productCount > 0){
+        return next(new HandleError("This page doesn't exist", 404))
+    }
 
-  const totalPages = Math.ceil(productCount / resultPerPage);
-  const page = Number(req.query.page) || 1;
+    // Apply pagination
+    apiFeatures.pagination(resultPerPage);
+    const products = await apiFeatures.query;
 
-  if (productCount > 0 && page > totalPages) {
-    return next(new HandleError("This page doesn't exist", 404));
-  }
-
-  apiFeatures.pagination(resultPerPage);
-  const products = await apiFeatures.query;
-
-  if (!products || products.length === 0) {
-    return next(new HandleError("No Product Found", 404));
-  }
-
-  res.status(200).json({
-    success: true,
-    products,
-    productCount,
-    resultPerPage,
-    totalPages,
-    currentPage: page
-  });
-});
+    if (!products || products.length === 0){
+        return next(new HandleError("No Product Found",404))
+    }
+    res.status(200).json({
+        success: true,
+        products,
+        productCount,
+        resultPerPage,
+        totalpages,
+        currentPage:page
+    })
+})
 
 // 3️⃣ UPDATE PRODUCTS
 export const updateProducts = handleAsyncError(async (req, res, next) => {
@@ -104,7 +103,7 @@ export const createReviewForProduct = handleAsyncError(async (req, res, next) =>
   if (reviewExist) {
     product.reviews.forEach(r => {
       if (r.user.toString() === req.user._id.toString()) {
-        r.rating = Number(rating);   // ✅ FIXED BUG
+        r.rating = Number(rating);  
         r.comment = comment;
       }
     });

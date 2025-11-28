@@ -13,7 +13,7 @@ function ImageSlider() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length)
     }, 5000);
 
     return () => clearInterval(interval);
@@ -33,7 +33,13 @@ function ImageSlider() {
       </div>
 
       <div className="slider-dots">
-        <span className='dot' />
+        {images.map((_, index) => (
+          <span
+            className={`dot ${index === currentIndex ? 'active' : ''}`}
+            onClick={() => setCurrentIndex(index)}
+          ></span>
+        ))}
+
       </div>
     </div>
   )
