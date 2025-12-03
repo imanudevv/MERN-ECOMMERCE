@@ -4,65 +4,43 @@ import Navbar from '../components/Navbar'
 import ImageSlider from '../components/ImageSlider'
 import Product from '../components/Product'
 const products= [
+           {
+            "_id": "69038f2e757a405f9bc137f6",
+            "name": "product4",
+            "description": "product description4",
+            "price": 450,
+            "ratings": 1,
+            "image": [],
+            "category": "mobile",
+            "stock": 2,
+            "numberOfReview": 0,
+            "reviews": [
+                {
+                    "user": "69182691eeff42f72102c1d3",
+                    "name": "amaya",
+                    "rating": 2,
+                    "comment": "not super",
+                    "_id": "6918356e590ef2e4159eda42"
+                }
+            ],
+            "createdAt": "2025-10-19T15:09:14.119Z",
+            "__v": 2,
+            "numOfReviews": 3
+        },
         {
             "numOfReviews": 0,
-            "_id": "69038f2e757a405f9bc137f4",
-            "name": "product2",
-            "description": "product description2",
-            "price": 350,
+            "_id": "69038f2e757a405f9bc137f7",
+            "name": "product5",
+            "description": "product description5",
+            "price": 500,
             "ratings": 0,
             "image": [],
-            "category": "bed",
-            "stock": 4,
+            "category": "watch",
+            "stock": 1,
             "numberOfReview": 0,
             "reviews": [],
             "createdAt": "2025-10-19T15:09:14.119Z",
             "__v": 0
-        },
-        {
-            "_id": "69038f2e757a405f9bc137f5",
-            "name": "product3",
-            "description": "product description3",
-            "price": 400,
-            "ratings": 0,
-            "image": [],
-            "category": "tv",
-            "stock": 8,
-            "numberOfReview": 0,
-            "reviews": [],
-            "createdAt": "2025-10-19T15:09:14.119Z",
-            "__v": 0,
-            "numOfReviews": 0
-        },
-        {
-            "numOfReviews": 0,
-            "_id": "69038f2e757a405f9bc137f4",
-            "name": "product2",
-            "description": "product description2",
-            "price": 350,
-            "ratings": 0,
-            "image": [],
-            "category": "bed",
-            "stock": 4,
-            "numberOfReview": 0,
-            "reviews": [],
-            "createdAt": "2025-10-19T15:09:14.119Z",
-            "__v": 0
-        },
-        {
-            "_id": "69038f2e757a405f9bc137f5",
-            "name": "product3",
-            "description": "product description3",
-            "price": 400,
-            "ratings": 0,
-            "image": [],
-            "category": "tv",
-            "stock": 8,
-            "numberOfReview": 0,
-            "reviews": [],
-            "createdAt": "2025-10-19T15:09:14.119Z",
-            "__v": 0,
-            "numOfReviews": 0
         }
       ]
 
