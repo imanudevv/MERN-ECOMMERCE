@@ -3,6 +3,8 @@ import Footer from '../components/Footer'
 import Navbar from '../components/Navbar'
 import ImageSlider from '../components/ImageSlider'
 import Product from '../components/Product'
+import PageTitle from '../components/PageTitle'
+import { useSelector } from 'react-redux'
 const products= [
            {
             "_id": "69038f2e757a405f9bc137f6",
@@ -45,8 +47,10 @@ const products= [
       ]
 
 function Home() {
+    useSelector
   return (
     <>
+    <PageTitle title="Home-My Website"/>
     <Navbar/>
     <ImageSlider/>
     <div className="home-container">
