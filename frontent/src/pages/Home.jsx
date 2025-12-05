@@ -7,6 +7,9 @@ import PageTitle from '../components/PageTitle';
 import { useDispatch, useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { getProduct } from '../features/products/prouctSlice';
+import  Loader from '../components/Loader.jsx';
+import { toast } from 'react-toastify';
+
 
 
 function Home() {
@@ -15,8 +18,16 @@ const dispatch=useDispatch();
 useEffect(()=>{
   dispatch(getProduct())
 },[dispatch])
+
+useEffect(()=>{
+  if(error){
+    toast.error(error.message);
+
+  }
+})
   return (
     <>
+   { loading?(<Loader/>) :(<>
       <PageTitle title="Home-My Website" />
       <Navbar />
       <ImageSlider />
@@ -32,6 +43,7 @@ useEffect(()=>{
       </div>
 
       <Footer />
+    </>)}
     </>
   );
 }

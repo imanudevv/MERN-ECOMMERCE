@@ -16,7 +16,7 @@ function Product({ product }) {
       <div className="product-card">
         <img
           src={product?.image?.[0]?.url}
-          alt={product?.name}
+          alt={product?.name} className='product-image-card'
         />
         <div className="product-details">
           <h3 className="product-title">{product.name}</h3>
