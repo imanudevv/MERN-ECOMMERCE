@@ -41,10 +41,11 @@ const productSlice = createSlice({
             state.productCount=action.payload.productCount;
             
         })
-        .addCase(getProduct.rejected,(state)=>{
-            state.loading=false;
-            state.error=action.payload || 'Something went Wrong'
-        })
+    .addCase(getProduct.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload || 'Something went Wrong';
+})
+
     }
 })
 
